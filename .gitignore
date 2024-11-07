@@ -1,0 +1,13 @@
+# Ignore build artifacts
+build/
+dist/
+
+# Ignore NetBeans project files
+nbproject/
+
+# Ignore Ant build files (if not used)
+build.xml
+
+# Ignore generated directories for EJB and WAR
+IDZ-ejb/
+IDZ-war/
