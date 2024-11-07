@@ -9,5 +9,7 @@ nbproject/
 build.xml
 
 # Ignore generated directories for EJB and WAR
-IDZ-ejb/
-IDZ-war/
+IDZ-ejb/build
+IDZ-ejb/dist
+IDZ-war/build
+IDZ-war/dist
