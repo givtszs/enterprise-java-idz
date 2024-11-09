@@ -7,6 +7,8 @@ package web;
 
 import ejb.AcademicDegreeEntity;
 import ejb.AcademicDegreeEntityFacade;
+import ejb.AcademicRankEntity;
+import ejb.AcademicRankEntityFacade;
 import ejb.EmployeeEntity;
 import ejb.EmployeeEntityFacade;
 import java.io.IOException;
@@ -35,6 +37,9 @@ public class ListEmployees extends HttpServlet {
 
     @EJB
     private AcademicDegreeEntityFacade academicDegreeEntityFacade;
+
+    @EJB
+    private AcademicRankEntityFacade academicRankEntityFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -75,27 +80,35 @@ public class ListEmployees extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String academicDegree = request.getParameter("academicDegree");
-        List<EmployeeEntity> employees;
-        if (academicDegree != null && !academicDegree.trim().isEmpty()) {
-            // Filter employees by academic degree            
-            if ("null".equals(academicDegree)) {
-                employees = employeeEntityFacade.findByDegree(null);    
-            } else {
-                employees = employeeEntityFacade.findByDegree(Long.parseLong(academicDegree));    
-            }
+        String academicRank = request.getParameter("academicRank");
 
-            logger.info("Filtered employes by degree, found results: " + employees.size());
-        } else {
-            // Get all employees if no academicDegree is provided
+        List<EmployeeEntity> employees;
+        try {
+            if ((academicDegree != null && !academicDegree.trim().isEmpty())
+                    || (academicRank != null && !academicRank.trim().isEmpty())) {
+                employees = employeeEntityFacade.findByDegreeAndRank(
+                        academicDegree.isEmpty() ? null : academicDegree,
+                        academicRank.isEmpty() ? null : academicRank
+                );
+                logger.info("Filtered employees by degree and rank, found results: " + employees.size());
+            } else {
+                employees = employeeEntityFacade.findAll();
+                logger.info("Found " + employees.size() + " employee entries");
+            }
+        } catch (Exception e) {
             employees = employeeEntityFacade.findAll();
             logger.info("Found " + employees.size() + " employee entries");
         }
-        
+
         List<AcademicDegreeEntity> degrees = academicDegreeEntityFacade.findAll();
         logger.info("Found " + degrees.size() + " degree entries");
 
+        List<AcademicRankEntity> ranks = academicRankEntityFacade.findAll();
+        logger.info("Found " + ranks.size() + " rank entries");
+
         request.setAttribute("employees", employees);
         request.setAttribute("degrees", degrees);
+        request.setAttribute("ranks", ranks);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("ListEmployees.jsp");
         dispatcher.forward(request, response);

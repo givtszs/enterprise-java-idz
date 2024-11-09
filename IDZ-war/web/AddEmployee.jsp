@@ -167,9 +167,14 @@
         </div>
 
         <div>
-            <label for="rank">Rank:</label>
-            <select id="rank" name="rank">
-                <!-- Populate with rank options from database -->
+            <label for="academicRank">Вчене звання:</label>
+            <select id="academicRank" name="academicRank">
+                <option value="">Відсутній</option>
+                <c:forEach items="${ranks}" var="rank">
+                    <option value="${rank.id}">
+                        ${rank.name}
+                    </option>
+                </c:forEach>
             </select>
         </div>
 

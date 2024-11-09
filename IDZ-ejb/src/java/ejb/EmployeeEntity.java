@@ -44,6 +44,18 @@ public class EmployeeEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "ACADEMIC_DEGREE_ID", nullable = true)
     private AcademicDegreeEntity academicDegree;
+    
+    @ManyToOne
+    @JoinColumn(name = "ACADEMIC_RANK_ID", nullable = true)
+    private AcademicRankEntity academicRank;
+
+    public AcademicRankEntity getAcademicRank() {
+        return academicRank;
+    }
+
+    public void setAcademicRank(AcademicRankEntity academicRank) {
+        this.academicRank = academicRank;
+    }
 
     public AcademicDegreeEntity getAcademicDegree() {
         return academicDegree;

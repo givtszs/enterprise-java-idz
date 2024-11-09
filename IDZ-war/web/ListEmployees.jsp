@@ -30,7 +30,7 @@
     </head>
     <body>
         <div class="header-section">
-            <h1>Employees</h1>
+            <h1><a href="ListEmployees">Employees</a></h1>
             <a href="AddEmployee" class="add-button">Add employee</a>
         </div>
 
@@ -43,6 +43,17 @@
                     <c:forEach items="${degrees}" var="degree">
                         <option value="${degree.id}" ${param.academicDegree eq degree.id ? 'selected' : ''}>
                             ${degree.name}
+                        </option>
+                    </c:forEach>
+                </select>
+                <br/>
+                <label for="academicRank">Filter by academic rank:</label>
+                <select name="academicRank" id="academicRank" onchange="this.form.submit()">
+                    <option value="">All Ranks</option>
+                    <option value="null" ${param.academicRank == 'null' ? 'selected' : ''}>Відсутній</option>
+                    <c:forEach items="${ranks}" var="rank">
+                        <option value="${rank.id}" ${param.academicRank eq rank.id ? 'selected' : ''}>
+                            ${rank.name}
                         </option>
                     </c:forEach>
                 </select>
@@ -69,6 +80,7 @@
                     <th>Sex</th>
                     <th>Hobby</th>
                     <th>Academic degree</th>
+                    <th>Academic rank</th>
                 </tr>
             </thead>
             <tbody>
@@ -91,6 +103,7 @@
                         <td>${employee.sex}</td>
                         <td>${employee.hobby}</td>
                         <td>${employee.academicDegree eq null ? 'Відсутній' : employee.academicDegree.name}</td>
+                        <td>${employee.academicRank eq null ? 'Відсутній' : employee.academicRank.name}</td>
                     </tr>
                 </c:forEach>
             </tbody>

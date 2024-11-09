@@ -7,6 +7,8 @@ package web;
 
 import ejb.AcademicDegreeEntity;
 import ejb.AcademicDegreeEntityFacade;
+import ejb.AcademicRankEntity;
+import ejb.AcademicRankEntityFacade;
 import ejb.EmployeeEntity;
 import ejb.EmployeeEntityFacade;
 import java.io.IOException;
@@ -34,6 +36,9 @@ public class AddEmployee extends HttpServlet {
 
     @EJB
     private AcademicDegreeEntityFacade academicDegreeEntityFacade;
+    
+    @EJB
+    private AcademicRankEntityFacade academicRankEntityFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -78,6 +83,10 @@ public class AddEmployee extends HttpServlet {
         request.setAttribute("degrees", degrees);
         logger.info("Found " + degrees.size() + " degree entries");
         
+        List<AcademicRankEntity> ranks = academicRankEntityFacade.findAll();
+        request.setAttribute("ranks", ranks);
+        logger.info("Found " + ranks.size() + " rank entries");
+        
         RequestDispatcher dispatcher = request.getRequestDispatcher("AddEmployee.jsp");
         dispatcher.forward(request, response);
     }
@@ -109,6 +118,7 @@ public class AddEmployee extends HttpServlet {
         String sex = request.getParameter("sex");
         String hobby = request.getParameter("hobby");
         String academicDegreeStr = request.getParameter("academicDegree");
+        String academicRankStr = request.getParameter("academicRank");
 
         StringBuilder errorMessage = new StringBuilder();
 
@@ -166,6 +176,11 @@ public class AddEmployee extends HttpServlet {
         if (academicDegreeStr.length() > 0) {
             degree = academicDegreeEntityFacade.find(Long.parseLong(academicDegreeStr));
         }
+        
+        AcademicRankEntity rank = null;
+        if (academicRankStr.length() > 0) {
+            rank = academicRankEntityFacade.find(Long.parseLong(academicRankStr));
+        }
 
         // Proceed to create and persist the entity if validation passed
         EmployeeEntity entity = new EmployeeEntity();
@@ -185,6 +200,7 @@ public class AddEmployee extends HttpServlet {
         entity.setSex(sex);
         entity.setHobby(hobby);
         entity.setAcademicDegree(degree);
+        entity.setAcademicRank(rank);
 
         employeeEntityFacade.create(entity);
 
