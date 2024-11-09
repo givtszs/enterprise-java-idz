@@ -5,10 +5,13 @@
  */
 package web;
 
+import ejb.AcademicDegreeEntity;
+import ejb.AcademicDegreeEntityFacade;
 import ejb.EmployeeEntity;
 import ejb.EmployeeEntityFacade;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.RequestDispatcher;
@@ -24,10 +27,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "AddEmployee", urlPatterns = {"/AddEmployee"})
 public class AddEmployee extends HttpServlet {
+
     private static Logger logger = Logger.getLogger("AddEmployee.class");
     @EJB
     private EmployeeEntityFacade employeeEntityFacade;
-    
+
+    @EJB
+    private AcademicDegreeEntityFacade academicDegreeEntityFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,7 +52,7 @@ public class AddEmployee extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddEmployee</title>");            
+            out.println("<title>Servlet AddEmployee</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet AddEmployee at " + request.getContextPath() + "</h1>");
@@ -68,6 +74,10 @@ public class AddEmployee extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Forward the request to the JSP page to display the form
+        List<AcademicDegreeEntity> degrees = academicDegreeEntityFacade.findAll();
+        request.setAttribute("degrees", degrees);
+        logger.info("Found " + degrees.size() + " degree entries");
+        
         RequestDispatcher dispatcher = request.getRequestDispatcher("AddEmployee.jsp");
         dispatcher.forward(request, response);
     }
@@ -98,6 +108,7 @@ public class AddEmployee extends HttpServlet {
         String birthday = request.getParameter("birthday");
         String sex = request.getParameter("sex");
         String hobby = request.getParameter("hobby");
+        String academicDegreeStr = request.getParameter("academicDegree");
 
         StringBuilder errorMessage = new StringBuilder();
 
@@ -105,15 +116,15 @@ public class AddEmployee extends HttpServlet {
         if (firstName == null || firstName.trim().isEmpty()) {
             errorMessage.append("First Name is required.<br>");
         }
-        
+
         if (middleName == null || middleName.trim().isEmpty()) {
             errorMessage.append("Middle Name is required.<br>");
         }
-        
+
         if (lastName == null || lastName.trim().isEmpty()) {
             errorMessage.append("Last Name is required.<br>");
         }
-        
+
         if (position == null || position.trim().isEmpty()) {
             errorMessage.append("Position is required.<br>");
         }
@@ -150,6 +161,11 @@ public class AddEmployee extends HttpServlet {
             dispatcher.forward(request, response);
             return;
         }
+        
+        AcademicDegreeEntity degree = null;
+        if (academicDegreeStr.length() > 0) {
+            degree = academicDegreeEntityFacade.find(Long.parseLong(academicDegreeStr));
+        }
 
         // Proceed to create and persist the entity if validation passed
         EmployeeEntity entity = new EmployeeEntity();
@@ -168,11 +184,12 @@ public class AddEmployee extends HttpServlet {
         entity.setBirthday(birthday);
         entity.setSex(sex);
         entity.setHobby(hobby);
-        
+        entity.setAcademicDegree(degree);
+
         employeeEntityFacade.create(entity);
-        
+
         logger.info("Entity should be persisted");
-        
+
         response.sendRedirect(request.getContextPath() + "/ListEmployees");
     }
 

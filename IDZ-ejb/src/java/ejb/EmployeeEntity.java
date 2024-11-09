@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -19,13 +21,12 @@ import javax.persistence.Id;
 public class EmployeeEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String firstName;
     private String middleName;
     private String lastName;
     private String position;
-    // вчена ступінь через foreign key
     // вчене звання через foreign key
     private String courses;
     private int academicLoad;
@@ -39,6 +40,18 @@ public class EmployeeEntity implements Serializable {
     private String sex;
     private String hobby;
     // hr info via foreign key
+    
+    @ManyToOne
+    @JoinColumn(name = "ACADEMIC_DEGREE_ID", nullable = true)
+    private AcademicDegreeEntity academicDegree;
+
+    public AcademicDegreeEntity getAcademicDegree() {
+        return academicDegree;
+    }
+
+    public void setAcademicDegree(AcademicDegreeEntity academicDegree) {
+        this.academicDegree = academicDegree;
+    }
 
     public Long getId() {
         return id;

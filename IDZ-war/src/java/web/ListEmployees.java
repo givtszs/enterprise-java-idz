@@ -5,12 +5,14 @@
  */
 package web;
 
+import ejb.AcademicDegreeEntity;
+import ejb.AcademicDegreeEntityFacade;
 import ejb.EmployeeEntity;
 import ejb.EmployeeEntityFacade;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -25,8 +27,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "ListEmployees", urlPatterns = {"/ListEmployees"})
 public class ListEmployees extends HttpServlet {
+
+    private static Logger logger = Logger.getLogger("ListEmployees.class");
+
     @EJB
     private EmployeeEntityFacade employeeEntityFacade;
+
+    @EJB
+    private AcademicDegreeEntityFacade academicDegreeEntityFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,7 +53,7 @@ public class ListEmployees extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ListEmployees</title>");            
+            out.println("<title>Servlet ListEmployees</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ListEmployees at " + request.getContextPath() + "</h1>");
@@ -66,8 +74,29 @@ public class ListEmployees extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<EmployeeEntity> employees = employeeEntityFacade.findAll();
+        String academicDegree = request.getParameter("academicDegree");
+        List<EmployeeEntity> employees;
+        if (academicDegree != null && !academicDegree.trim().isEmpty()) {
+            // Filter employees by academic degree            
+            if ("null".equals(academicDegree)) {
+                employees = employeeEntityFacade.findByDegree(null);    
+            } else {
+                employees = employeeEntityFacade.findByDegree(Long.parseLong(academicDegree));    
+            }
+
+            logger.info("Filtered employes by degree, found results: " + employees.size());
+        } else {
+            // Get all employees if no academicDegree is provided
+            employees = employeeEntityFacade.findAll();
+            logger.info("Found " + employees.size() + " employee entries");
+        }
+        
+        List<AcademicDegreeEntity> degrees = academicDegreeEntityFacade.findAll();
+        logger.info("Found " + degrees.size() + " degree entries");
+
         request.setAttribute("employees", employees);
+        request.setAttribute("degrees", degrees);
+
         RequestDispatcher dispatcher = request.getRequestDispatcher("ListEmployees.jsp");
         dispatcher.forward(request, response);
     }

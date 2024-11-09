@@ -155,9 +155,14 @@
 
         <!-- Foreign Key fields -->
         <div>
-            <label for="degree">Degree:</label>
-            <select id="degree" name="degree">
-                <!-- Populate with degree options from database -->
+            <label for="academicDegree">Науковий ступень:</label>
+            <select name="academicDegree" id="academicDegree">
+                <option value="">Відсутній</option>
+                <c:forEach items="${degrees}" var="degree">
+                    <option value="${degree.id}">
+                        ${degree.name}
+                    </option>
+                </c:forEach>
             </select>
         </div>
 

@@ -29,8 +29,25 @@
         </style>
     </head>
     <body>
-        <h1>Employees</h1>
-        <a href="AddEmployee">Add employee</a>
+        <div class="header-section">
+            <h1>Employees</h1>
+            <a href="AddEmployee" class="add-button">Add employee</a>
+        </div>
+
+        <div class="filter-section">
+            <form action="ListEmployees" method="get">
+                <label for="academicDegree">Filter by academic degree:</label>
+                <select name="academicDegree" id="academicDegree" onchange="this.form.submit()">
+                    <option value="">All Degrees</option>
+                    <option value="null" ${param.academicDegree == 'null' ? 'selected' : ''}>Відсутній</option>
+                    <c:forEach items="${degrees}" var="degree">
+                        <option value="${degree.id}" ${param.academicDegree eq degree.id ? 'selected' : ''}>
+                            ${degree.name}
+                        </option>
+                    </c:forEach>
+                </select>
+            </form>
+        </div>
 
         <table>
             <thead>
@@ -40,8 +57,6 @@
                     <th>Middle Name</th>
                     <th>Last Name</th>
                     <th>Position</th>
-<!--                    <th>Degree</th>
-                    <th>Rank</th>-->
                     <th>Courses</th>
                     <th>Academic Load</th>
                     <th>Research Activity</th>
@@ -53,31 +68,32 @@
                     <th>Birthday</th>
                     <th>Sex</th>
                     <th>Hobby</th>
-                    <!--<th>HR Info</th>-->
+                    <th>Academic degree</th>
                 </tr>
             </thead>
             <tbody>
-            <c:forEach var="employee" items="${employees}">
-                <tr>
-                    <td>${employee.id}</td>
-                    <td>${employee.firstName}</td>
-                    <td>${employee.middleName}</td>
-                    <td>${employee.lastName}</td>
-                    <td>${employee.position}</td>
-                    <td>${employee.courses}</td>
-                    <td>${employee.academicLoad}</td>
-                    <td>${employee.researchActivity}</td>
-                    <td>${employee.organizationalWork}</td>
-                    <td>${employee.partTimeJob}</td>
-                    <td>${employee.address}</td>
-                    <td>${employee.phoneNumber}</td>
-                    <td>${employee.email}</td>
-                    <td>${employee.birthday}</td>
-                    <td>${employee.sex}</td>
-                    <td>${employee.hobby}</td>
-                </tr>
-            </c:forEach>
-        </tbody>
-    </table>
-</body>
+                <c:forEach items="${employees}" var="employee">
+                    <tr>
+                        <td>${employee.id}</td>
+                        <td>${employee.firstName}</td>
+                        <td>${employee.middleName}</td>
+                        <td>${employee.lastName}</td>
+                        <td>${employee.position}</td>
+                        <td>${employee.courses}</td>
+                        <td>${employee.academicLoad}</td>
+                        <td>${employee.researchActivity}</td>
+                        <td>${employee.organizationalWork}</td>
+                        <td>${employee.partTimeJob}</td>
+                        <td>${employee.address}</td>
+                        <td>${employee.phoneNumber}</td>
+                        <td>${employee.email}</td>
+                        <td>${employee.birthday}</td>
+                        <td>${employee.sex}</td>
+                        <td>${employee.hobby}</td>
+                        <td>${employee.academicDegree eq null ? 'Відсутній' : employee.academicDegree.name}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </body>
 </html>
