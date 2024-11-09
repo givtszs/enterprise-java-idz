@@ -173,8 +173,7 @@ public class AddEmployee extends HttpServlet {
         
         logger.info("Entity should be persisted");
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("ListEmployees.jsp");
-        dispatcher.forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/ListEmployees");
     }
 
     /**
