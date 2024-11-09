@@ -5,8 +5,12 @@
  */
 package web;
 
+import ejb.EmployeeEntity;
+import ejb.EmployeeEntityFacade;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +24,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "AddEmployee", urlPatterns = {"/AddEmployee"})
 public class AddEmployee extends HttpServlet {
+    private static Logger logger = Logger.getLogger("AddEmployee.class");
+    @EJB
+    private EmployeeEntityFacade employeeEntityFacade;
+    
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -75,7 +83,98 @@ public class AddEmployee extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String firstName = request.getParameter("firstName");
+        String middleName = request.getParameter("middleName");
+        String lastName = request.getParameter("lastName");
+        String position = request.getParameter("position");
+        String courses = request.getParameter("courses");
+        String academicLoadStr = request.getParameter("academicLoad");
+        String researchActivity = request.getParameter("researchActivity");
+        String organizationalWork = request.getParameter("organizationalWork");
+        String partTimeJob = request.getParameter("partTimeJob");
+        String address = request.getParameter("address");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String email = request.getParameter("email");
+        String birthday = request.getParameter("birthday");
+        String sex = request.getParameter("sex");
+        String hobby = request.getParameter("hobby");
+
+        StringBuilder errorMessage = new StringBuilder();
+
+        // validate the request parameters
+        if (firstName == null || firstName.trim().isEmpty()) {
+            errorMessage.append("First Name is required.<br>");
+        }
+        
+        if (middleName == null || middleName.trim().isEmpty()) {
+            errorMessage.append("Middle Name is required.<br>");
+        }
+        
+        if (lastName == null || lastName.trim().isEmpty()) {
+            errorMessage.append("Last Name is required.<br>");
+        }
+        
+        if (position == null || position.trim().isEmpty()) {
+            errorMessage.append("Position is required.<br>");
+        }
+
+        int academicLoad = 0;
+        try {
+            academicLoad = Integer.parseInt(academicLoadStr);
+            if (academicLoad <= 0) {
+                errorMessage.append("Academic Load must be a positive number.<br>");
+            }
+        } catch (NumberFormatException e) {
+            errorMessage.append("Academic Load is required and must be a valid number.<br>");
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            errorMessage.append("Email is required.<br>");
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            errorMessage.append("Invalid email format.<br>");
+        }
+
+        if (birthday == null || birthday.trim().isEmpty()) {
+            errorMessage.append("Birthday is required.<br>");
+        }
+
+        if (sex == null || sex.trim().isEmpty()) {
+            errorMessage.append("Sex is required.<br>");
+        }
+
+        // Check if any validation errors occurred
+        if (errorMessage.length() > 0) {
+            // Set error message as request attribute and forward back to form
+            request.setAttribute("errorMessage", errorMessage.toString());
+            RequestDispatcher dispatcher = request.getRequestDispatcher("AddEmployee.jsp");
+            dispatcher.forward(request, response);
+            return;
+        }
+
+        // Proceed to create and persist the entity if validation passed
+        EmployeeEntity entity = new EmployeeEntity();
+        entity.setFirstName(firstName);
+        entity.setMiddleName(middleName);
+        entity.setLastName(lastName);
+        entity.setPosition(position);
+        entity.setCourses(courses);
+        entity.setAcademicLoad(academicLoad);
+        entity.setResearchActivity(researchActivity);
+        entity.setOrganizationalWork(organizationalWork);
+        entity.setPartTimeJob(partTimeJob);
+        entity.setAddress(address);
+        entity.setPhoneNumber(phoneNumber);
+        entity.setEmail(email);
+        entity.setBirthday(birthday);
+        entity.setSex(sex);
+        entity.setHobby(hobby);
+        
+        employeeEntityFacade.create(entity);
+        
+        logger.info("Entity should be persisted");
+        
+        RequestDispatcher dispatcher = request.getRequestDispatcher("ListEmployees.jsp");
+        dispatcher.forward(request, response);
     }
 
     /**

@@ -5,17 +5,76 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Додати співробітника</title>
+        <script type="text/javascript">
+        // Function to validate the form
+        function validateForm() {
+            console.log("Validating the form");
+            
+            const firstName = document.getElementById("firstName").value;
+            const middleName = document.getElementById("middleName").value;
+            const lastName = document.getElementById("lastName").value;
+            const position = document.getElementById("position").value;
+            const academicLoad = document.getElementById("academicLoad").value;
+            const email = document.getElementById("email").value;
+            const birthday = document.getElementById("birthday").value;
+            const sex = document.getElementById("sex").value;
+
+            // Validate required fields
+            if (firstName.trim() === "" || middleName.trim() === "" || lastName.trim() === "") {
+                alert("Full name is required.");
+                return false;
+            }
+         
+            if (position.trim() === "") {
+                alert("Position is required.");
+                return false;
+            }
+            if (academicLoad.trim() === "" || isNaN(academicLoad) || academicLoad <= 0) {
+                alert("Academic Load is required and must be a positive number.");
+                return false;
+            }
+            if (email.trim() === "" || !validateEmail(email)) {
+                alert("Please enter a valid email address.");
+                return false;
+            }
+            if (birthday.trim() === "") {
+                alert("Birthday is required.");
+                return false;
+            }
+            if (sex === "") {
+                alert("Sex is required.");
+                return false;
+            }
+
+            // All validations passed, submit the form
+            return true;
+        }
+
+        // Function to validate email format
+        function validateEmail(email) {
+            const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return re.test(email);
+        }
+    </script>
     </head>
     <body>
+        <c:if test="${not empty errorMessage}">
+            <div style="color: red;">
+                <h3>Validation Errors:</h3>
+                <p>${errorMessage}</p>
+            </div>
+        </c:if>
+        
         <h1>Дані співробітника</h1>
 
     <!-- Form to create the entity object -->
-    <form action="createEntityServlet" method="post">
+    <form method="post" onsubmit="return validateForm()">
         <div>
             <label for="lastName">Прізвище:</label>
             <input type="text" id="lastName" name="lastName" required>
