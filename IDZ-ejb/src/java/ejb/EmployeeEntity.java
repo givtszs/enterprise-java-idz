@@ -6,12 +6,14 @@
 package ejb;
 
 import java.io.Serializable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -27,7 +29,6 @@ public class EmployeeEntity implements Serializable {
     private String middleName;
     private String lastName;
     private String position;
-    // вчене звання через foreign key
     private String courses;
     private int academicLoad;
     private String researchActivity;
@@ -39,7 +40,6 @@ public class EmployeeEntity implements Serializable {
     private String birthday;
     private String sex;
     private String hobby;
-    // hr info via foreign key
     
     @ManyToOne
     @JoinColumn(name = "ACADEMIC_DEGREE_ID", nullable = true)
@@ -48,6 +48,18 @@ public class EmployeeEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "ACADEMIC_RANK_ID", nullable = true)
     private AcademicRankEntity academicRank;
+    
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "CONTRACT_INFO_ID", nullable = true)
+    private ContractInfoEntity contractInfo;
+
+    public ContractInfoEntity getContractInfo() {
+        return contractInfo;
+    }
+
+    public void setContractInfo(ContractInfoEntity contractInfo) {
+        this.contractInfo = contractInfo;
+    }
 
     public AcademicRankEntity getAcademicRank() {
         return academicRank;

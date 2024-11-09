@@ -5,16 +5,10 @@
  */
 package web;
 
-import ejb.AcademicDegreeEntity;
-import ejb.AcademicDegreeEntityFacade;
-import ejb.AcademicRankEntity;
-import ejb.AcademicRankEntityFacade;
 import ejb.EmployeeEntity;
 import ejb.EmployeeEntityFacade;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -27,19 +21,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author John
  */
-@WebServlet(name = "ListEmployees", urlPatterns = {"/ListEmployees"})
-public class ListEmployees extends HttpServlet {
-
-    private static Logger logger = Logger.getLogger("ListEmployees.class");
+@WebServlet(name = "ShowEmployee", urlPatterns = {"/ShowEmployee"})
+public class ShowEmployee extends HttpServlet {
 
     @EJB
     private EmployeeEntityFacade employeeEntityFacade;
-
-    @EJB
-    private AcademicDegreeEntityFacade academicDegreeEntityFacade;
-
-    @EJB
-    private AcademicRankEntityFacade academicRankEntityFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -58,10 +44,10 @@ public class ListEmployees extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ListEmployees</title>");
+            out.println("<title>Servlet ShowEmployee</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ListEmployees at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ShowEmployee at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -79,42 +65,19 @@ public class ListEmployees extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String academicDegree = request.getParameter("academicDegree");
-        String academicRank = request.getParameter("academicRank");
-        String sortType = request.getParameter("sortType");
-
-        List<EmployeeEntity> employees;
-        // get all employees and filter if needed
-        try {
-            if ((academicDegree != null && !academicDegree.trim().isEmpty())
-                    || (academicRank != null && !academicRank.trim().isEmpty())
-                    || ((sortType != null) && !sortType.trim().isEmpty())) {
-                employees = employeeEntityFacade.filterSort(
-                        academicDegree,
-                        academicRank,
-                        sortType
-                );
-                logger.info("Filtered employees by degree and rank, found results: " + employees.size());
-            } else {
-                employees = employeeEntityFacade.findAll();
-                logger.info("Found " + employees.size() + " employee entries");
+        String employeeId = request.getParameter("employeeId");
+        EmployeeEntity employee = null;
+        if (employeeId != null && !employeeId.trim().isEmpty()) {
+            try {
+                employee = employeeEntityFacade.find(Long.parseLong(employeeId));
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-        } catch (Exception e) {
-            employees = employeeEntityFacade.findAll();
-            logger.info("Found " + employees.size() + " employee entries");
         }
+        
+        request.setAttribute("employee", employee);
 
-        List<AcademicDegreeEntity> degrees = academicDegreeEntityFacade.findAll();
-        logger.info("Found " + degrees.size() + " degree entries");
-
-        List<AcademicRankEntity> ranks = academicRankEntityFacade.findAll();
-        logger.info("Found " + ranks.size() + " rank entries");
-
-        request.setAttribute("employees", employees);
-        request.setAttribute("degrees", degrees);
-        request.setAttribute("ranks", ranks);
-
-        RequestDispatcher dispatcher = request.getRequestDispatcher("ListEmployees.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("EmployeeInfo.jsp");
         dispatcher.forward(request, response);
     }
 

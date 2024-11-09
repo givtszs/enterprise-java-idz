@@ -9,10 +9,13 @@ import ejb.AcademicDegreeEntity;
 import ejb.AcademicDegreeEntityFacade;
 import ejb.AcademicRankEntity;
 import ejb.AcademicRankEntityFacade;
+import ejb.ContractInfoEntity;
 import ejb.EmployeeEntity;
 import ejb.EmployeeEntityFacade;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -36,7 +39,7 @@ public class AddEmployee extends HttpServlet {
 
     @EJB
     private AcademicDegreeEntityFacade academicDegreeEntityFacade;
-    
+
     @EJB
     private AcademicRankEntityFacade academicRankEntityFacade;
 
@@ -82,11 +85,11 @@ public class AddEmployee extends HttpServlet {
         List<AcademicDegreeEntity> degrees = academicDegreeEntityFacade.findAll();
         request.setAttribute("degrees", degrees);
         logger.info("Found " + degrees.size() + " degree entries");
-        
+
         List<AcademicRankEntity> ranks = academicRankEntityFacade.findAll();
         request.setAttribute("ranks", ranks);
         logger.info("Found " + ranks.size() + " rank entries");
-        
+
         RequestDispatcher dispatcher = request.getRequestDispatcher("AddEmployee.jsp");
         dispatcher.forward(request, response);
     }
@@ -171,16 +174,24 @@ public class AddEmployee extends HttpServlet {
             dispatcher.forward(request, response);
             return;
         }
-        
+
         AcademicDegreeEntity degree = null;
         if (academicDegreeStr.length() > 0) {
             degree = academicDegreeEntityFacade.find(Long.parseLong(academicDegreeStr));
         }
-        
+
         AcademicRankEntity rank = null;
         if (academicRankStr.length() > 0) {
             rank = academicRankEntityFacade.find(Long.parseLong(academicRankStr));
         }
+
+        ContractInfoEntity contractInfo;
+        try {
+            contractInfo = processContractInfoData(request);    
+        } catch (ParseException e) {
+            contractInfo = null;
+        }
+        
 
         // Proceed to create and persist the entity if validation passed
         EmployeeEntity entity = new EmployeeEntity();
@@ -201,12 +212,57 @@ public class AddEmployee extends HttpServlet {
         entity.setHobby(hobby);
         entity.setAcademicDegree(degree);
         entity.setAcademicRank(rank);
+        entity.setContractInfo(contractInfo);
 
         employeeEntityFacade.create(entity);
 
         logger.info("Entity should be persisted");
 
         response.sendRedirect(request.getContextPath() + "/ListEmployees");
+    }
+
+    private ContractInfoEntity processContractInfoData(HttpServletRequest request) throws ParseException {
+        String hiringDate = request.getParameter("hiringDate");
+        String contractStartDateString = request.getParameter("contractStartDate");
+        String contractEndDateString = request.getParameter("contractEndDate");
+        String prevVacationStartDateString = request.getParameter("prevVacationStartDate");
+        String prevVacationEndDateString = request.getParameter("prevVacationEndDate");
+        String nextVacationStartDateString = request.getParameter("nextVacationStartDate");
+        String nextVacationEndDateString = request.getParameter("nextVacationEndDate");
+
+        // Define the DateTimeFormatter to match the datetime-local format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        ContractInfoEntity contractInfo = new ContractInfoEntity();
+
+        if (hiringDate != null && !hiringDate.isEmpty()) {
+            contractInfo.setHiringDate(hiringDate);
+        }
+        
+        if (contractStartDateString != null && !contractStartDateString.isEmpty()) {
+            contractInfo.setContractStartDate(dateFormat.parse(contractStartDateString));
+        }
+        
+        if (contractEndDateString != null && !contractEndDateString.isEmpty()) {
+            contractInfo.setContractEndDate(dateFormat.parse(contractEndDateString));
+        }
+        
+        if (prevVacationStartDateString != null && !prevVacationStartDateString.isEmpty()) {
+            contractInfo.setPrevVacationStartDate(dateFormat.parse(prevVacationStartDateString));
+        }
+        
+        if (prevVacationEndDateString != null && !prevVacationEndDateString.isEmpty()) {
+            contractInfo.setPrevVacationEndDate(dateFormat.parse(prevVacationEndDateString));
+        }
+        
+        if (nextVacationStartDateString != null && !nextVacationStartDateString.isEmpty()) {
+            contractInfo.setNextVacationStartDate(dateFormat.parse(nextVacationStartDateString));
+        }
+        
+        if (nextVacationEndDateString != null && !nextVacationEndDateString.isEmpty()) {
+            contractInfo.setNextVacationEndDate(dateFormat.parse(nextVacationEndDateString));
+        }
+        
+        return contractInfo;
     }
 
     /**

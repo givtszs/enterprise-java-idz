@@ -30,24 +30,29 @@ public class EmployeeEntityFacade extends AbstractFacade<EmployeeEntity> {
         super(EmployeeEntity.class);
     }
 
-    public List<EmployeeEntity> findByDegreeAndRank(String degreeId, String rankId) throws NumberFormatException {
+    public List<EmployeeEntity> filterSort(String degreeId, String rankId, String sortType) throws NumberFormatException {
         String _null = "null";
-        StringBuilder queryString = new StringBuilder("SELECT n FROM EmployeeEntity n WHERE 1=1");
+        StringBuilder queryString = new StringBuilder("SELECT entity FROM EmployeeEntity entity WHERE 1=1");
 
         if (degreeId != null) {
             if (_null.equals(degreeId)) {
-                queryString.append(" AND n.academicDegree IS NULL");
+                queryString.append(" AND entity.academicDegree IS NULL");
             } else {
-                queryString.append(" AND n.academicDegree.id = :degreeId");
+                queryString.append(" AND entity.academicDegree.id = :degreeId");
+            }
+        }
+
+        if (rankId != null) {
+            if (_null.equals(rankId)) {
+                queryString.append(" AND entity.academicRank IS NULL");
+            } else {
+                queryString.append(" AND entity.academicRank.id = :rankId");
             }
         }
         
-        if (rankId != null) {
-            if (_null.equals(rankId)) {
-                queryString.append(" AND n.academicRank IS NULL");
-            } else {
-                queryString.append(" AND n.academicRank.id = :rankId");
-            }
+        if (sortType != null) {
+            
+            queryString.append(" ORDER BY entity.contractInfo." + sortType + " ASC");
         }
 
         TypedQuery<EmployeeEntity> query = em.createQuery(queryString.toString(), EmployeeEntity.class);
@@ -57,7 +62,14 @@ public class EmployeeEntityFacade extends AbstractFacade<EmployeeEntity> {
         if (rankId != null && !_null.equals(rankId)) {
             query.setParameter("rankId", Long.parseLong(rankId));
         }
-        
+
+        return query.getResultList();
+    }
+
+    public List<EmployeeEntity> sortByContractEndDate(boolean ascending) {
+        String sortOrder = ascending ? "ASC" : "DESC";
+        TypedQuery<EmployeeEntity> query
+                = em.createQuery("SELECT entity FROM EmployeeEntity entity ORDER BY entity.contractInfo.contractEndDate " + sortOrder, EmployeeEntity.class);
         return query.getResultList();
     }
 }
